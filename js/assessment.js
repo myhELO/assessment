@@ -1,4 +1,10 @@
 /**
+ * OpenAI settings. Paste the API key from your invite email below.
+ */
+const OPENAI_API_KEY = '<PASTE OPENAI API KEY HERE>';
+const OPENAI_MODEL = 'gpt-6-luna';
+
+/**
  * Namespace.
  *
  * @type {Object}
@@ -26,35 +32,57 @@ assessment.fda_api = function(url, callback) {
 
 /**
  * Send an API call to OpenAI and execute a callback with the results.
- * 
- * @link https://platform.openai.com/docs/guides/completions#page-top
  *
- * @param {Array} messages The messages to send to OpenAI.
+ * @link https://platform.openai.com/docs/api-reference/responses
+ *
+ * @param {string|Array} input The prompt (or list of messages) to send.
  * @param {Function} callback Function to call upon successful execution of
  * the API call.
  */
-assessment.openai_api = function(messages, callback) {
-  const OPENAI_API_KEY = '<PASTE OPENAI API KEY HERE>';
-
+assessment.openai_api = function(input, callback) {
   const callback_ = function() {
     if (this.status !== 200) {
+      assessment.openai_error();
       console.error('OpenAI Error: ' + this.responseText);
       return;
     }
 
     const json = JSON.parse(this.responseText);
-    callback(json.choices[0].message.content);
+    let text = '';
+    json.output.forEach(function(item) {
+      if (item.type === 'message') {
+        item.content.forEach(function(part) {
+          if (part.type === 'output_text') {
+            text += part.text;
+          }
+        });
+      }
+    });
+    callback(text);
   };
 
   const request = new XMLHttpRequest();
   request.addEventListener('load', callback_);
-  request.open('POST', 'https://api.openai.com/v1/chat/completions');
+  request.addEventListener('error', assessment.openai_error);
+  request.open('POST', 'https://api.openai.com/v1/responses');
   request.setRequestHeader('Content-Type', 'application/json');
   request.setRequestHeader('Authorization', 'Bearer ' + OPENAI_API_KEY);
   request.send(JSON.stringify({
-    model: 'gpt-4o',
-    messages: messages
+    model: OPENAI_MODEL,
+    input: input
   }));
+};
+
+/**
+ * Show a friendly message when an OpenAI call doesn't go through.
+ */
+assessment.openai_error = function() {
+  const message = document.createElement('div');
+  message.className = 'openai_error';
+  message.innerText = 'The AI call didn\'t go through. Double-check the API ' +
+    'key you pasted at the top of assessment.js. If it still isn\'t working, ' +
+    'email us and we\'ll help.';
+  document.body.appendChild(message);
 };
 
 /**
