@@ -56,8 +56,8 @@ component.visualization.prototype.decorate = function(parent) {
    * https://api.fda.gov/drug/label.json?search=warnings:dizziness&count=openfda.substance_name.exact
    *
    * Frequency of boxed warning use over time
-   * https://api.fda.gov/drug/label.json?search=effective_time:20090601+TO+20181008&count=effective_time
-   * https://api.fda.gov/drug/label.json?search=(effective_time:20090601+TO+20181008)+AND+_exists_:boxed_warning&count=effective_time
+   * https://api.fda.gov/drug/label.json?search=effective_time:20160101+TO+20251231&count=effective_time
+   * https://api.fda.gov/drug/label.json?search=(effective_time:20160101+TO+20251231)+AND+_exists_:boxed_warning&count=effective_time
    *
    * Frequency of the phrase "ice cream" in food recalls grouped by recalling company
    * https://api.fda.gov/food/enforcement.json?search=reason_for_recall:%22ice+cream%22&count=recalling_firm.exact
